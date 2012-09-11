@@ -19,7 +19,7 @@
         default-lazy-init="true">
 
     <!-- DAISY Pipeline -->
-    <bean id="pipeline2Client" class="org.bookshare.converter.pipeline.DAISYPipeline2ClientImpl">
+    <bean id="pipeline2Client" class="org.benetech.pipeline.client.RestTemplatePipeline2Client">
         <property name="serviceUrl" value="http://localhost:8182/ws" />
         <property name="restTemplate">
             <bean class="org.springframework.web.client.RestTemplate">
@@ -48,7 +48,7 @@
         </property>
     </bean>
     
-    <bean id="fileMessageConverter" class="org.benetech.net.FileHttpMessageConverter">
+    <bean id="fileMessageConverter" class="org.benetech.pipeline.client.FileHttpMessageConverter">
         <property name="tempFilePrefix" value="pipeline" />
         <property name="tempFileSuffix" value=".zip" />
     </bean>
