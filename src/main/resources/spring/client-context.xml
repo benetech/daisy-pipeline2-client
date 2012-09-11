@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+        http://www.springframework.org/schema/util 
+        http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+        default-lazy-init="true">
+
+    <!-- DAISY Pipeline -->
+    <bean id="pipeline2Client" class="org.bookshare.converter.pipeline.DAISYPipeline2ClientImpl">
+        <property name="serviceUrl" value="http://localhost:8182/ws" />
+        <property name="restTemplate">
+            <bean class="org.springframework.web.client.RestTemplate">
+                <constructor-arg index="0" ref="pipelineHttpClientFactory"/>
+                <property name="requestFactory">
+                    <bean class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+                        <property name="bufferRequestBody" value="false" />
+                        <property name="connectTimeout" value="20000" />
+                        <property name="readTimeout" value="20000" />
+                    </bean>
+                </property>
+                <property name="messageConverters">
+                    <list>
+                        <bean class="org.springframework.http.converter.StringHttpMessageConverter" />
+                        <bean class="org.springframework.http.converter.xml.XmlAwareFormHttpMessageConverter">
+                            <property name="partConverters" >
+                                <list>
+                                    <ref bean="fileMessageConverter" />
+                                </list>
+                            </property>
+                        </bean>
+                        <ref bean="fileMessageConverter" />
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    
+    <bean id="fileMessageConverter" class="org.benetech.net.FileHttpMessageConverter">
+        <property name="tempFilePrefix" value="pipeline" />
+        <property name="tempFileSuffix" value=".zip" />
+    </bean>
+
+    <bean id="pipelineHttpClientFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+        <constructor-arg index="0" ref="pipelineHttpClient"/>
+    </bean>
+    
+    <bean id="pipelineHttpClient" class="org.apache.http.impl.client.DefaultHttpClient">
+        <constructor-arg index="0" ref="pipelineHttpConnectionManager"/>
+        <constructor-arg index="1" ref="pipelineHttpParams"/>
+    </bean>
+    <bean id="pipelineHttpParams" class="org.apache.http.params.BasicHttpParams"/>
+    
+    <!-- Some of the properties of the param bean can be set up through a Spring wrapper that provides JavaBean conventions -->
+    <bean class="org.apache.http.params.HttpConnectionParamBean" lazy-init="false">
+        <constructor-arg index="0">
+            <ref bean="pipelineHttpParams"/>
+        </constructor-arg>
+        <property name="connectionTimeout" value="60000"/>
+        <property name="soTimeout" value="60000" />
+    </bean>
+    
+    <bean id="pipelineHttpConnectionManager" class="org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager">
+        <constructor-arg index="0" ref="pipelineHttpParams" />
+        <constructor-arg index="1">
+            <bean class="org.apache.http.impl.conn.SchemeRegistryFactory" factory-method="createDefault" />
+        </constructor-arg>
+    </bean>
+    
+</beans>
