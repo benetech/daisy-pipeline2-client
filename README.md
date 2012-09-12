@@ -19,7 +19,7 @@ License
 
 This source code is being made available under the Revised BSD or The BSD 3-Clause License.
 
-Copyright (c) 2011, Benetech Inc.
+Copyright (c) 2012, Benetech Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
